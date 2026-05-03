@@ -43,9 +43,22 @@ Windows-only 프로젝트라 non-Windows OS 에서는 직접 빌드 불가 (`NET
 
 → GitHub Actions `windows-latest` runner 로 우회. `.github/workflows/build-windows.yml` 참조 후 `gh workflow run build-windows`.
 
+## 다운로드
+
+GitHub Actions 빌드에서 두 가지 배포판 zip 을 받을 수 있습니다.
+
+| 배포판 | 사이즈 | .NET 8 데스크톱 런타임 |
+|--------|--------|------------------------|
+| `hangul_switcher-windows-bundled` | ~68MB | 불필요 (exe 안에 포함) |
+| `hangul_switcher-windows-fxdep`   | ~수 MB | 별도 설치 필요 |
+
+런타임 없는 PC 에 처음 배포하거나 대상 환경을 모르면 **bundled**, 본인/팀 PC 에 이미 .NET 8 데스크톱 런타임이 깔려 있으면 **fxdep** 권장.
+
+> 런타임 설치: `winget install Microsoft.DotNet.DesktopRuntime.8`
+
 ## 실행
 
-`hangul_switcher.exe` 더블클릭 → tray 에 아이콘 등장. 시작 프로그램 등록은 Windows 설정 → 시작 프로그램에서 직접.
+zip 풀고 `HangulSwitcher.exe` 더블클릭 → tray 에 아이콘 등장. 시작 프로그램 등록은 Windows 설정 → 시작 프로그램에서 직접.
 
 ## 구조
 
