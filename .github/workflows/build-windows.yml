@@ -10,7 +10,10 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - run: dotnet publish -c Release -o publish
+      - shell: pwsh
+        run: Compress-Archive -Path publish\* -DestinationPath hangul_switcher.zip
       - uses: actions/upload-artifact@v4
         with:
           name: hangul_switcher-windows
-          path: publish/
+          path: hangul_switcher.zip
+          if-no-files-found: error
