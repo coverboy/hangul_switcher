@@ -1,12 +1,12 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Text;
 
 namespace HangulSwitcher;
 
 internal static class IconFactory
 {
     private const int ICON_SIZE = 32;
+    private const string FONT_FAMILY = "Segoe UI";
 
     public static Icon CreateTextIcon(string text, Color foreground, Color background)
     {
@@ -14,16 +14,37 @@ internal static class IconFactory
         using (var g = Graphics.FromImage(bmp))
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.Clear(background);
 
-            var fontSize = text.Length == 1 ? 16f : 12f;
-            using var font = new Font("Segoe UI", fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+            // 글자 외곽선 path 를 만들고 실제 ink bounds 기준으로
+            // ICON_SIZE 박스에 정확히 fit (font ascent/descent 여백 제거).
+            using var family = new FontFamily(FONT_FAMILY);
+            using var path = new GraphicsPath();
+            path.AddString(
+                text,
+                family,
+                (int)FontStyle.Bold,
+                emSize: ICON_SIZE,
+                origin: PointF.Empty,
+                StringFormat.GenericTypographic);
+
+            var bounds = path.GetBounds();
+            if (bounds.Width > 0 && bounds.Height > 0)
+            {
+                var scale = Math.Min(ICON_SIZE / bounds.Width, ICON_SIZE / bounds.Height);
+                using var matrix = new Matrix();
+                matrix.Translate(-bounds.X, -bounds.Y);
+                matrix.Scale(scale, scale, MatrixOrder.Append);
+                matrix.Translate(
+                    (ICON_SIZE - bounds.Width * scale) / 2f,
+                    (ICON_SIZE - bounds.Height * scale) / 2f,
+                    MatrixOrder.Append);
+                path.Transform(matrix);
+            }
+
             using var brush = new SolidBrush(foreground);
-            var size = g.MeasureString(text, font);
-            var x = (ICON_SIZE - size.Width) / 2f;
-            var y = (ICON_SIZE - size.Height) / 2f;
-            g.DrawString(text, font, brush, x, y);
+            g.FillPath(brush, path);
         }
 
         var hIcon = bmp.GetHicon();
