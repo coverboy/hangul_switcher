@@ -9,6 +9,39 @@ internal sealed class AboutForm : Form
     private const string IconFont = "Segoe MDL2 Assets";
     private const string TextFont = "Segoe UI";
     private const float  BaseFontSize = 11f;
+
+    private const int FormWidth   = 940;
+    private const int FormHeight  = 420;
+
+    // 좌측 영역
+    private const int LeftX       = 24;
+    private const int LogoSize    = 240;
+    private const int LogoY       = 24;
+    private const int TitleY      = 290;
+    private const int SubtitleY   = 322;
+
+    // 우측 카드 영역
+    private const int RightX        = 310;
+    private const int CardWidth     = 296;
+    private const int CardHeight    = 130;
+    private const int GithubWidth   = 606;
+    private const int Row1Y         = 24;
+    private const int Row2Y         = 170;
+    private const int LicenseX      = 620;
+    private const int QuoteX        = 770;
+    private const int QuoteY        = 380;
+
+    // 카드 내부 좌표 (CardHeight=130 기준)
+    private const int IconX     = 16;
+    private const int IconY     = 64;   // 본문 vertical center 정렬
+    private const int LabelX    = 52;
+    private const int LabelY    = 46;   // 라벨+본문 묶음을 카드 vertical center
+    private const int ValueX    = 52;
+    private const int ValueY    = 67;
+    private const int ExtraIconRightPad = 16;
+    private const float ExtraIconFontSize = 14f;
+    private const int ExtraIconSize = 19;
+
     private static readonly Color LinkColor       = Color.FromArgb(50, 100, 200);
     private static readonly Color GithubIconColor = Color.FromArgb(36, 41, 47);
     private static readonly Color MailIconColor   = Color.FromArgb(220, 64, 64);
@@ -24,9 +57,9 @@ internal sealed class AboutForm : Form
         ShowInTaskbar = false;
         BackColor = Color.White;
         ForeColor = Color.Black;
-        Padding = new Padding(24);
         Font = new Font(TextFont, BaseFontSize);
-        ClientSize = new Size(940, 420);
+        AutoScaleMode = AutoScaleMode.Dpi;
+        ClientSize = new Size(FormWidth, FormHeight);
 
         BuildLayout();
     }
@@ -43,206 +76,132 @@ internal sealed class AboutForm : Form
 
     private void BuildLayout()
     {
-        var root = new TableLayoutPanel
+        Controls.Add(new AboutLogoPanel
         {
-            Dock = DockStyle.Fill,
-            ColumnCount = 2,
-            RowCount = 1
-        };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35f));
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 65f));
+            Location = new Point(LeftX, LogoY),
+            Size = new Size(LogoSize, LogoSize)
+        });
 
-        root.Controls.Add(BuildLeftPanel(), 0, 0);
-        root.Controls.Add(BuildRightPanel(), 1, 0);
-
-        Controls.Add(root);
-    }
-
-    private static Control BuildLeftPanel()
-    {
-        var panel = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 1,
-            RowCount = 3,
-            Padding = new Padding(0, 0, 20, 0)
-        };
-        panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
-        panel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        panel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-
-        panel.Controls.Add(new AboutLogoPanel { Dock = DockStyle.Fill }, 0, 0);
-
-        panel.Controls.Add(new Label
+        Controls.Add(new Label
         {
             Text = $"{AppInfo.AppName} 정보",
             Font = new Font(TextFont, 13f, FontStyle.Bold),
-            AutoSize = true,
-            Anchor = AnchorStyles.None,
-            Margin = new Padding(0, 16, 0, 6)
-        }, 0, 1);
+            Location = new Point(LeftX, TitleY),
+            Size = new Size(LogoSize, 24),
+            TextAlign = ContentAlignment.MiddleCenter
+        });
 
-        panel.Controls.Add(new Label
+        Controls.Add(new Label
         {
             Text = "Shift + Space로 한/영 전환\n시스템 트레이 유틸리티.",
             Font = new Font(TextFont, BaseFontSize),
-            AutoSize = true,
-            TextAlign = ContentAlignment.MiddleCenter,
-            Anchor = AnchorStyles.None
-        }, 0, 2);
+            Location = new Point(LeftX, SubtitleY),
+            Size = new Size(LogoSize, 50),
+            TextAlign = ContentAlignment.MiddleCenter
+        });
 
-        return panel;
-    }
-
-    private static Control BuildRightPanel()
-    {
-        var grid = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 2,
-            RowCount = 3
-        };
-        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
-        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
-        grid.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        grid.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));
-        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-
-        var github = BuildCard(
-            iconGlyph: "\uE943",
-            iconColor: GithubIconColor,
+        Controls.Add(BuildCard(
+            new Point(RightX, Row1Y), GithubWidth,
+            iconGlyph: "\uE943",   iconColor: GithubIconColor,
             label: "GITHUB",
             valueText: "github.com/coverboy/hangul_switcher",
             href: AppInfo.ProjectUrl,
-            extraIconGlyph: "\uE8A7",
-            extraIconColor: LinkColor);
-        github.Margin = new Padding(0, 0, 0, 6);
-        grid.Controls.Add(github, 0, 0);
-        grid.SetColumnSpan(github, 2);
+            extraIconGlyph: "\uE8A7", extraIconColor: LinkColor));
 
-        var contact = BuildCard(
-            iconGlyph: "\uE715",
-            iconColor: MailIconColor,
+        Controls.Add(BuildCard(
+            new Point(RightX, Row2Y), CardWidth,
+            iconGlyph: "\uE715",   iconColor: MailIconColor,
             label: "CONTACT",
             valueText: AppInfo.ContactEmail,
             href: $"mailto:{AppInfo.ContactEmail}",
-            extraIconGlyph: null,
-            extraIconColor: null);
-        contact.Margin = new Padding(0, 6, 6, 0);
-        grid.Controls.Add(contact, 0, 1);
+            extraIconGlyph: null,      extraIconColor: null));
 
-        var license = BuildCard(
-            iconGlyph: "\uE72E",
-            iconColor: ShieldIconColor,
+        Controls.Add(BuildCard(
+            new Point(LicenseX, Row2Y), CardWidth,
+            iconGlyph: "\uE72E", iconColor: ShieldIconColor,
             label: "LICENSE",
             valueText: "라이선스 완전 Free.",
             href: null,
-            extraIconGlyph: null,
-            extraIconColor: null);
-        license.Margin = new Padding(6, 6, 0, 0);
-        grid.Controls.Add(license, 1, 1);
+            extraIconGlyph: null,      extraIconColor: null));
 
-        grid.Controls.Add(new Label
+        Controls.Add(new Label
         {
             Text = "\"마음대로 가져다 쓰세요.\"",
             Font = new Font(TextFont, BaseFontSize, FontStyle.Italic),
-            AutoSize = true,
-            Anchor = AnchorStyles.Right | AnchorStyles.Top,
-            Margin = new Padding(0, 10, 4, 0)
-        }, 1, 2);
-
-        return grid;
+            Location = new Point(QuoteX, QuoteY),
+            AutoSize = true
+        });
     }
 
     private static Control BuildCard(
-        string iconGlyph,
-        Color iconColor,
+        Point location, int width,
+        string iconGlyph, Color iconColor,
         string label,
         string valueText,
         string? href,
-        string? extraIconGlyph,
-        Color? extraIconColor)
+        string? extraIconGlyph, Color? extraIconColor)
     {
         var card = new RoundedPanel
         {
             BackColor = Color.White,
-            Dock = DockStyle.Fill,
-            Padding = new Padding(16, 14, 16, 14)
+            Location = location,
+            Size = new Size(width, CardHeight)
         };
 
-        var inner = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 3,
-            RowCount = 2,
-            BackColor = Color.Transparent
-        };
-        inner.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        inner.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-        inner.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        inner.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        inner.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-
-        var icon = new Label
+        card.Controls.Add(new Label
         {
             Text = iconGlyph,
             Font = new Font(IconFont, 18f),
             ForeColor = iconColor,
-            AutoSize = true,
-            Margin = new Padding(0, 0, 14, 0),
-            Anchor = AnchorStyles.None
-        };
-        inner.Controls.Add(icon, 0, 0);
-        inner.SetRowSpan(icon, 2);
+            Location = new Point(IconX, IconY),
+            AutoSize = true
+        });
 
-        inner.Controls.Add(new Label
+        card.Controls.Add(new Label
         {
             Text = label,
             Font = new Font(TextFont, BaseFontSize, FontStyle.Bold),
-            AutoSize = true,
-            Margin = new Padding(0, 0, 0, 4)
-        }, 1, 0);
+            Location = new Point(LabelX, LabelY),
+            AutoSize = true
+        });
 
         Control valueControl = href != null
-            ? CreateLink(valueText, href)
+            ? CreateLink(valueText, href, new Point(ValueX, ValueY))
             : new Label
             {
                 Text = valueText,
                 Font = new Font(TextFont, BaseFontSize),
-                AutoSize = true,
-                Margin = new Padding(0)
+                Location = new Point(ValueX, ValueY),
+                AutoSize = true
             };
-        inner.Controls.Add(valueControl, 1, 1);
+        card.Controls.Add(valueControl);
 
         if (extraIconGlyph != null)
         {
-            var extra = new Label
+            card.Controls.Add(new Label
             {
                 Text = extraIconGlyph,
-                Font = new Font(IconFont, 14f),
+                Font = new Font(IconFont, ExtraIconFontSize),
                 ForeColor = extraIconColor ?? Color.Black,
-                AutoSize = true,
-                Anchor = AnchorStyles.None
-            };
-            inner.Controls.Add(extra, 2, 0);
-            inner.SetRowSpan(extra, 2);
+                Location = new Point(width - ExtraIconRightPad - ExtraIconSize, (CardHeight - ExtraIconSize) / 2),
+                AutoSize = true
+            });
         }
 
-        card.Controls.Add(inner);
         return card;
     }
 
-    private static LinkLabel CreateLink(string text, string href)
+    private static LinkLabel CreateLink(string text, string href, Point location)
     {
         var link = new LinkLabel
         {
             Text = text,
             Font = new Font(TextFont, BaseFontSize),
-            AutoSize = true,
+            Location = location,
             LinkColor = LinkColor,
             ActiveLinkColor = LinkColor,
             LinkBehavior = LinkBehavior.HoverUnderline,
-            Margin = new Padding(0)
+            AutoSize = true
         };
         link.LinkClicked += (_, _) => Process.Start(new ProcessStartInfo
         {
