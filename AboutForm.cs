@@ -7,8 +7,9 @@ namespace HangulSwitcher;
 internal sealed class AboutForm : Form
 {
     private const string IconFont = "Segoe MDL2 Assets";
-    private static readonly Color LabelColor = Color.FromArgb(110, 118, 128);
-    private static readonly Color LinkColor  = Color.FromArgb(50, 100, 200);
+    private const string TextFont = "Segoe UI";
+    private const float  BaseFontSize = 11f;
+    private static readonly Color LinkColor = Color.FromArgb(50, 100, 200);
 
     public AboutForm()
     {
@@ -19,22 +20,23 @@ internal sealed class AboutForm : Form
         MinimizeBox = false;
         ShowInTaskbar = false;
         BackColor = Color.White;
-        Padding = new Padding(20);
-        Font = SystemFonts.MessageBoxFont!;
-        ClientSize = new Size(680, 300);
+        ForeColor = Color.Black;
+        Padding = new Padding(24);
+        Font = new Font(TextFont, BaseFontSize);
+        ClientSize = new Size(940, 420);
 
         BuildLayout();
-        SetupKeyboardShortcuts();
     }
 
-    private void SetupKeyboardShortcuts()
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
     {
-        // Enter / ESC 모두 닫힘 동작.
-        var hidden = new Button { Visible = false, Size = new Size(0, 0) };
-        hidden.Click += (_, _) => Close();
-        Controls.Add(hidden);
-        AcceptButton = hidden;
-        CancelButton = hidden;
+        // 폼 안 어떤 컨트롤이 포커스를 갖고 있어도 ESC/Enter 가로채서 닫음.
+        if (keyData == Keys.Escape || keyData == Keys.Enter)
+        {
+            Close();
+            return true;
+        }
+        return base.ProcessCmdKey(ref msg, keyData);
     }
 
     private void BuildLayout()
@@ -45,8 +47,8 @@ internal sealed class AboutForm : Form
             ColumnCount = 2,
             RowCount = 1
         };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38f));
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 62f));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35f));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 65f));
 
         root.Controls.Add(BuildLeftPanel(), 0, 0);
         root.Controls.Add(BuildRightPanel(), 1, 0);
@@ -61,7 +63,7 @@ internal sealed class AboutForm : Form
             Dock = DockStyle.Fill,
             ColumnCount = 1,
             RowCount = 3,
-            Padding = new Padding(0, 0, 16, 0)
+            Padding = new Padding(0, 0, 20, 0)
         };
         panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
         panel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -72,25 +74,25 @@ internal sealed class AboutForm : Form
         panel.Controls.Add(new Label
         {
             Text = $"{AppInfo.AppName} 정보",
-            Font = new Font(SystemFonts.MessageBoxFont!.FontFamily, 11f, FontStyle.Bold),
+            Font = new Font(TextFont, 13f, FontStyle.Bold),
             AutoSize = true,
             Anchor = AnchorStyles.None,
-            Margin = new Padding(0, 14, 0, 4)
+            Margin = new Padding(0, 16, 0, 6)
         }, 0, 1);
 
         panel.Controls.Add(new Label
         {
             Text = "Shift + Space로 한/영 전환\n시스템 트레이 유틸리티.",
+            Font = new Font(TextFont, BaseFontSize),
             AutoSize = true,
             TextAlign = ContentAlignment.MiddleCenter,
-            Anchor = AnchorStyles.None,
-            ForeColor = LabelColor
+            Anchor = AnchorStyles.None
         }, 0, 2);
 
         return panel;
     }
 
-    private Control BuildRightPanel()
+    private static Control BuildRightPanel()
     {
         var grid = new TableLayoutPanel
         {
@@ -105,41 +107,40 @@ internal sealed class AboutForm : Form
         grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
         var github = BuildCard(
-            iconGlyph: "\uE943",                          // Code
+            iconGlyph: "\uE943",
             label: "GITHUB",
             valueText: "github.com/coverboy/hangul_switcher",
             href: AppInfo.ProjectUrl,
-            extraIconGlyph: "\uE8A7");                    // OpenInNewWindow
-        github.Margin = new Padding(0, 0, 0, 4);
+            extraIconGlyph: "\uE8A7");
+        github.Margin = new Padding(0, 0, 0, 6);
         grid.Controls.Add(github, 0, 0);
         grid.SetColumnSpan(github, 2);
 
         var contact = BuildCard(
-            iconGlyph: "\uE715",                          // Mail
+            iconGlyph: "\uE715",
             label: "CONTACT",
             valueText: AppInfo.ContactEmail,
             href: $"mailto:{AppInfo.ContactEmail}",
             extraIconGlyph: null);
-        contact.Margin = new Padding(0, 4, 4, 0);
+        contact.Margin = new Padding(0, 6, 6, 0);
         grid.Controls.Add(contact, 0, 1);
 
         var license = BuildCard(
-            iconGlyph: "\uE72E",                          // Shield
+            iconGlyph: "\uE72E",
             label: "LICENSE",
             valueText: "라이선스 완전 Free.",
             href: null,
             extraIconGlyph: null);
-        license.Margin = new Padding(4, 4, 0, 0);
+        license.Margin = new Padding(6, 6, 0, 0);
         grid.Controls.Add(license, 1, 1);
 
         grid.Controls.Add(new Label
         {
             Text = "\"마음대로 가져다 쓰세요.\"",
-            Font = new Font(SystemFonts.MessageBoxFont!.FontFamily, 8.5f, FontStyle.Italic),
-            ForeColor = LabelColor,
+            Font = new Font(TextFont, BaseFontSize, FontStyle.Italic),
             AutoSize = true,
             Anchor = AnchorStyles.Right | AnchorStyles.Top,
-            Margin = new Padding(0, 6, 4, 0)
+            Margin = new Padding(0, 10, 4, 0)
         }, 1, 2);
 
         return grid;
@@ -156,7 +157,7 @@ internal sealed class AboutForm : Form
         {
             BackColor = Color.White,
             Dock = DockStyle.Fill,
-            Padding = new Padding(14, 12, 14, 12)
+            Padding = new Padding(16, 14, 16, 14)
         };
 
         var inner = new TableLayoutPanel
@@ -175,10 +176,9 @@ internal sealed class AboutForm : Form
         var icon = new Label
         {
             Text = iconGlyph,
-            Font = new Font(IconFont, 14f),
-            ForeColor = LabelColor,
+            Font = new Font(IconFont, 16f),
             AutoSize = true,
-            Margin = new Padding(0, 2, 12, 0),
+            Margin = new Padding(0, 2, 14, 0),
             Anchor = AnchorStyles.Left
         };
         inner.Controls.Add(icon, 0, 0);
@@ -187,15 +187,20 @@ internal sealed class AboutForm : Form
         inner.Controls.Add(new Label
         {
             Text = label,
-            Font = new Font(SystemFonts.MessageBoxFont!.FontFamily, 7.5f, FontStyle.Bold),
-            ForeColor = LabelColor,
+            Font = new Font(TextFont, BaseFontSize, FontStyle.Bold),
             AutoSize = true,
-            Margin = new Padding(0, 0, 0, 2)
+            Margin = new Padding(0, 0, 0, 4)
         }, 1, 0);
 
         Control valueControl = href != null
             ? CreateLink(valueText, href)
-            : new Label { Text = valueText, AutoSize = true, Margin = new Padding(0) };
+            : new Label
+            {
+                Text = valueText,
+                Font = new Font(TextFont, BaseFontSize),
+                AutoSize = true,
+                Margin = new Padding(0)
+            };
         inner.Controls.Add(valueControl, 1, 1);
 
         if (extraIconGlyph != null)
@@ -203,8 +208,7 @@ internal sealed class AboutForm : Form
             var extra = new Label
             {
                 Text = extraIconGlyph,
-                Font = new Font(IconFont, 12f),
-                ForeColor = LabelColor,
+                Font = new Font(IconFont, 13f),
                 AutoSize = true,
                 Anchor = AnchorStyles.Right
             };
@@ -221,6 +225,7 @@ internal sealed class AboutForm : Form
         var link = new LinkLabel
         {
             Text = text,
+            Font = new Font(TextFont, BaseFontSize),
             AutoSize = true,
             LinkColor = LinkColor,
             ActiveLinkColor = LinkColor,
