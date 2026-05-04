@@ -45,8 +45,12 @@ public sealed class TrayContext : ApplicationContext
         };
         startupItem.CheckedChanged += (_, _) => SetAutoStart(startupItem.Checked);
 
+        var aboutItem = new ToolStripMenuItem("정보(About)");
+        aboutItem.Click += (_, _) => ShowAbout();
+
         var menu = new ContextMenuStrip();
         menu.Items.Add(startupItem);
+        menu.Items.Add(aboutItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("종료", null, (_, _) => ExitApp());
 
@@ -61,6 +65,71 @@ public sealed class TrayContext : ApplicationContext
         _hook = new KeyboardHook();
         _hook.ShiftSpacePressed += SendHangulToggle;
         _hook.Start();
+    }
+
+    private static void ShowAbout()
+    {
+        const string projectUrl = "https://github.com/coverboy/hangul_switcher";
+        const string contactEmail = "coverboy@1234.co.kr";
+
+        using var form = new Form
+        {
+            Text = "HangulSwitcher 정보",
+            FormBorderStyle = FormBorderStyle.FixedDialog,
+            StartPosition = FormStartPosition.CenterScreen,
+            MaximizeBox = false,
+            MinimizeBox = false,
+            ShowInTaskbar = false,
+            ClientSize = new Size(460, 220)
+        };
+
+        var title = new Label
+        {
+            Text = "Windows 에서 Shift+Space 로 한/영 전환하는 system tray 유틸리티.",
+            AutoSize = false,
+            Location = new Point(20, 20),
+            Size = new Size(420, 50)
+        };
+
+        var urlLabel = new Label { Text = "프로젝트:", Location = new Point(20, 85), AutoSize = true };
+        var urlLink = new LinkLabel
+        {
+            Text = projectUrl,
+            Location = new Point(95, 85),
+            AutoSize = true
+        };
+        urlLink.LinkClicked += (_, _) => Process.Start(new ProcessStartInfo
+        {
+            FileName = projectUrl,
+            UseShellExecute = true
+        });
+
+        var emailLabel = new Label { Text = "이메일:", Location = new Point(20, 115), AutoSize = true };
+        var emailLink = new LinkLabel
+        {
+            Text = contactEmail,
+            Location = new Point(95, 115),
+            AutoSize = true
+        };
+        emailLink.LinkClicked += (_, _) => Process.Start(new ProcessStartInfo
+        {
+            FileName = $"mailto:{contactEmail}",
+            UseShellExecute = true
+        });
+
+        var license = new Label
+        {
+            Text = "저작권: 완전 Free. 마음대로 가져다 쓰세요.",
+            Location = new Point(20, 150),
+            AutoSize = true
+        };
+
+        var ok = new Button { Text = "확인", Location = new Point(370, 180), Size = new Size(70, 28) };
+        ok.Click += (_, _) => form.Close();
+        form.AcceptButton = ok;
+
+        form.Controls.AddRange(new Control[] { title, urlLabel, urlLink, emailLabel, emailLink, license, ok });
+        form.ShowDialog();
     }
 
     private static void SendHangulToggle()

@@ -1,6 +1,8 @@
 name: build-windows
 on:
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: windows-latest
@@ -9,25 +11,34 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+
+      - name: Set version tag
+        id: ver
+        shell: pwsh
+        run: |
+          $tag = "v$(Get-Date -Format 'yyyy.MM.dd').${{ github.run_number }}"
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
       - name: Publish (self-contained, 런타임 포함)
-        run: dotnet publish -c Release -o publish-sc
-      - name: Zip bundled
-        shell: pwsh
-        run: Compress-Archive -Path publish-sc\* -DestinationPath hangul_switcher-bundled.zip
+        run: dotnet publish -c Release -o publish-standalone
 
-      - name: Publish (framework-dependent, 런타임 별도 필요)
-        run: dotnet publish -c Release -p:SelfContained=false -p:IncludeNativeLibrariesForSelfExtract=false -p:EnableCompressionInSingleFile=false -o publish-fd
-      - name: Zip fxdep
-        shell: pwsh
-        run: Compress-Archive -Path publish-fd\* -DestinationPath hangul_switcher-fxdep.zip
+      - name: Publish (framework-dependent, 런타임 별도)
+        run: dotnet publish -c Release -p:SelfContained=false -p:IncludeNativeLibrariesForSelfExtract=false -p:EnableCompressionInSingleFile=false -o publish-needsdotnet
 
-      - uses: actions/upload-artifact@v4
+      - name: Zip Standalone
+        shell: pwsh
+        run: Compress-Archive -Path publish-standalone\* -DestinationPath HangulSwitcher-Standalone.zip
+
+      - name: Zip NeedsDotNet
+        shell: pwsh
+        run: Compress-Archive -Path publish-needsdotnet\* -DestinationPath HangulSwitcher-NeedsDotNet.zip
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: hangul_switcher-windows-bundled
-          path: hangul_switcher-bundled.zip
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        with:
-          name: hangul_switcher-windows-fxdep
-          path: hangul_switcher-fxdep.zip
-          if-no-files-found: error
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          files: |
+            HangulSwitcher-Standalone.zip
+            HangulSwitcher-NeedsDotNet.zip
+          generate_release_notes: true

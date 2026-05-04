@@ -1,6 +1,6 @@
-# hangul_switcher
+# HangulSwitcher — Shift+Space 로 한/영 전환 (Korean / English IME toggle for Windows)
 
-Windows 에서 **Shift+Space** 로 한/영 전환하는 system tray 유틸리티.
+Windows 10/11 에서 **Shift+Space** 한 번으로 한국어(한글) ↔ 영어(English) 입력기를 전환하는 system tray 유틸리티. 키보드 종류 설정·재부팅 없이, 블루투스·노트북·외장 키보드 어디서든 동일하게 동작합니다. Korean keyboard hangul english IME toggle for Windows tray utility — AutoHotkey 대안.
 
 ## 만든 이유
 
@@ -20,12 +20,32 @@ Windows 의 한/영 전환은 본래 키보드 종류가 **"PC/AT 101키 호환 
 
 - 백그라운드 상주 → system tray 아이콘으로만 노출
 - 전역 단축키 **Shift+Space** → 현재 포커스된 입력 필드의 IME 한/영 토글
-- tray 아이콘 우클릭 → 종료
+- tray 아이콘 우클릭 메뉴:
+  - **Windows 시작 시 실행** — 체크 한 번으로 자동 시작 등록 (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run` 레지스트리)
+  - **정보(About)** — 프로젝트 URL · 이메일 · 라이선스 표시
+  - **종료**
 
 ## 요구 사항
 
-- Windows 10/11
-- .NET 10 Runtime (self-contained 빌드 시 불필요)
+- Windows 10 / Windows 11
+- .NET 8 Desktop Runtime (Standalone 빌드는 불필요)
+
+## 다운로드
+
+GitHub Releases 에서 두 가지 배포판 zip 을 받을 수 있습니다.
+
+| 배포판 | zip 크기 | .NET 8 Desktop Runtime |
+|--------|---------|------------------------|
+| `HangulSwitcher-Standalone.zip` | ~63MB  | 불필요 (exe 안에 포함) |
+| `HangulSwitcher-NeedsDotNet.zip` | ~80KB  | 별도 설치 필요 |
+
+런타임 없는 PC 에 처음 배포하거나 대상 환경을 모르면 **Standalone**, 본인/팀 PC 에 .NET 8 Desktop Runtime 이 깔려 있으면 **NeedsDotNet** 권장.
+
+> 런타임 설치: `winget install Microsoft.DotNet.DesktopRuntime.8`
+
+## 실행
+
+zip 풀고 `HangulSwitcher.exe` 더블클릭 → tray 에 아이콘 등장. **자동 시작은 tray 아이콘 우클릭 → "Windows 시작 시 실행" 체크** 하면 됩니다 (별도 시작 프로그램 폴더 등록 불필요).
 
 ## 빌드
 
@@ -35,31 +55,22 @@ Windows 의 한/영 전환은 본래 키보드 종류가 **"PC/AT 101키 호환 
 dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o publish
 ```
 
-산출물: `publish/hangul_switcher.exe`
+산출물: `publish/HangulSwitcher.exe`
 
 ### Linux/macOS 에서 빌드
 
 Windows-only 프로젝트라 non-Windows OS 에서는 직접 빌드 불가 (`NETSDK1100`).
 
-→ GitHub Actions `windows-latest` runner 로 우회. `.github/workflows/build-windows.yml` 참조 후 `gh workflow run build-windows`.
-
-## 다운로드
-
-GitHub Actions 빌드에서 두 가지 배포판 zip 을 받을 수 있습니다.
-
-| 배포판 | 다운로드 (zip) / 압축 해제 후 | .NET 8 데스크톱 런타임 |
-|--------|------------------------------|------------------------|
-| `hangul_switcher-windows-bundled` | ~63MB / ~72MB  | 불필요 (exe 안에 포함) |
-| `hangul_switcher-windows-fxdep`   | ~80KB / ~180KB | 별도 설치 필요 |
-
-런타임 없는 PC 에 처음 배포하거나 대상 환경을 모르면 **bundled**, 본인/팀 PC 에 이미 .NET 8 데스크톱 런타임이 깔려 있으면 **fxdep** 권장.
-
-> 런타임 설치: `winget install Microsoft.DotNet.DesktopRuntime.8`
-
-## 실행
-
-zip 풀고 `HangulSwitcher.exe` 더블클릭 → tray 에 아이콘 등장. 시작 프로그램 등록은 Windows 설정 → 시작 프로그램에서 직접.
+→ GitHub Actions `windows-latest` runner 로 우회. `gh workflow run build-windows` 하면 빌드 + Releases 자동 등록.
 
 ## 구조
 
 `Program.cs` 단일 파일. 글로벌 키 후킹 + tray 아이콘 + IME 메시지 송신만 담당.
+
+## License
+
+완전 Free. 마음대로 가져다 쓰세요.
+
+## Keywords
+
+hangul, korean, korean keyboard, korean ime, hangul english toggle, korean english switcher, 한영 전환, 한/영 키, 한영키, 한글 영문, 한글 영어 전환, windows ime utility, shift space korean, shift+space hangul, system tray utility, autohotkey alternative, windows 10, windows 11, IME toggle, keyboard layout switcher
