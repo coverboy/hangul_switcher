@@ -14,6 +14,7 @@ internal sealed class TrayContext : ApplicationContext
     private readonly ImeStateMonitor _imeMonitor;
     private readonly Icon _hangulIcon;
     private readonly Icon _englishIcon;
+    private bool _isHangulMode;
 
     public TrayContext()
     {
@@ -21,7 +22,7 @@ internal sealed class TrayContext : ApplicationContext
         _englishIcon = IconFactory.CreateTextIcon("En", Color.White, Color.FromArgb(50, 100, 200));
 
         _hook = new KeyboardHook();
-        _hook.ShiftSpacePressed += SendHangulToggle;
+        _hook.ShiftSpacePressed += OnShiftSpacePressed;
         _hook.Install();
 
         _tray = new NotifyIcon
@@ -37,7 +38,21 @@ internal sealed class TrayContext : ApplicationContext
         _imeMonitor.Start();
     }
 
+    private void OnShiftSpacePressed()
+    {
+        // 자체 토글로 즉시 트레이 반응. 100ms 폴링이 다른 방법 전환 시 보정.
+        SendHangulToggle();
+        _isHangulMode = !_isHangulMode;
+        UpdateTrayIcon(_isHangulMode);
+    }
+
     private void OnImeStateChanged(bool isHangulMode)
+    {
+        _isHangulMode = isHangulMode;
+        UpdateTrayIcon(isHangulMode);
+    }
+
+    private void UpdateTrayIcon(bool isHangulMode)
     {
         _tray.Icon = isHangulMode ? _hangulIcon : _englishIcon;
     }

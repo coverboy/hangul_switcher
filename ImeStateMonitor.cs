@@ -27,7 +27,9 @@ internal sealed class ImeStateMonitor : IDisposable
 
     private static bool ReadIsHangulMode()
     {
-        var hwnd = NativeMethods.GetForegroundWindow();
+        // foreground window 가 IME-aware 하지 않은 경우(WSL/Zed 등)에도
+        // 시스템 IME 상태가 일관되게 반영되는 explorer shell window 기준으로 읽음.
+        var hwnd = NativeMethods.GetShellWindow();
         if (hwnd == IntPtr.Zero) return false;
 
         var threadId = NativeMethods.GetWindowThreadProcessId(hwnd, out _);
@@ -38,12 +40,14 @@ internal sealed class ImeStateMonitor : IDisposable
         var imeWnd = NativeMethods.ImmGetDefaultIMEWnd(hwnd);
         if (imeWnd == IntPtr.Zero) return false;
 
-        var openStatus = NativeMethods.SendMessage(
+        // IMC_GETOPENSTATUS 는 IME 활성/비활성만 반환해서 한/영 토글을 못 잡음.
+        // IMC_GETCONVERSIONMODE 로 conversion flags 받아서 NATIVE bit 검사.
+        var convMode = NativeMethods.SendMessage(
             imeWnd,
             NativeMethods.WM_IME_CONTROL,
-            (IntPtr)NativeMethods.IMC_GETOPENSTATUS,
+            (IntPtr)NativeMethods.IMC_GETCONVERSIONMODE,
             IntPtr.Zero);
-        return openStatus.ToInt64() != 0;
+        return (convMode.ToInt64() & NativeMethods.IME_CMODE_NATIVE) != 0;
     }
 
     public void Dispose()

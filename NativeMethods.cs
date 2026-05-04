@@ -6,9 +6,10 @@ internal static class NativeMethods
 {
     public delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
-    public const ushort LANG_KOREAN     = 0x0412;
-    public const uint   WM_IME_CONTROL  = 0x0283;
-    public const int    IMC_GETOPENSTATUS = 0x0005;
+    public const ushort LANG_KOREAN            = 0x0412;
+    public const uint   WM_IME_CONTROL         = 0x0283;
+    public const int    IMC_GETCONVERSIONMODE  = 0x0001;
+    public const int    IME_CMODE_NATIVE       = 0x0001;
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
@@ -31,6 +32,9 @@ internal static class NativeMethods
 
     [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetShellWindow();
 
     [DllImport("user32.dll")]
     public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
