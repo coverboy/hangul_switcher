@@ -11,20 +11,35 @@ internal sealed class TrayContext : ApplicationContext
 
     private readonly NotifyIcon _tray;
     private readonly KeyboardHook _hook;
+    private readonly ImeStateMonitor _imeMonitor;
+    private readonly Icon _hangulIcon;
+    private readonly Icon _englishIcon;
 
     public TrayContext()
     {
+        _hangulIcon  = IconFactory.CreateTextIcon("한",  Color.White, Color.FromArgb(220, 50, 50));
+        _englishIcon = IconFactory.CreateTextIcon("En", Color.White, Color.FromArgb(50, 100, 200));
+
         _hook = new KeyboardHook();
         _hook.ShiftSpacePressed += SendHangulToggle;
         _hook.Install();
 
         _tray = new NotifyIcon
         {
-            Icon = LoadAppIcon(),
+            Icon = _englishIcon,
             Text = $"{AppInfo.AppName} (Shift+Space)",
             ContextMenuStrip = BuildContextMenu(),
             Visible = true
         };
+
+        _imeMonitor = new ImeStateMonitor();
+        _imeMonitor.StateChanged += OnImeStateChanged;
+        _imeMonitor.Start();
+    }
+
+    private void OnImeStateChanged(bool isHangulMode)
+    {
+        _tray.Icon = isHangulMode ? _hangulIcon : _englishIcon;
     }
 
     private ContextMenuStrip BuildContextMenu()
@@ -75,20 +90,6 @@ internal sealed class TrayContext : ApplicationContext
             key.DeleteValue(AppInfo.AutoStartRegistryName, throwOnMissingValue: false);
     }
 
-    private static Icon LoadAppIcon()
-    {
-        // 단일 파일 self-contained 배포에서도 동작하도록 exe 내장 아이콘 추출.
-        // ExtractAssociatedIcon 은 손상된 exe / 권한 문제에서 IO 예외를 던질 수 있어 폴백 보장.
-        try
-        {
-            var icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-            if (icon != null) return icon;
-        }
-        catch (System.IO.FileNotFoundException) { /* 폴백 */ }
-        catch (System.ComponentModel.Win32Exception) { /* 폴백 */ }
-        return SystemIcons.Application;
-    }
-
     private void ExitApp()
     {
         Dispose();
@@ -99,9 +100,12 @@ internal sealed class TrayContext : ApplicationContext
     {
         if (disposing)
         {
+            _imeMonitor.Dispose();
             _hook.Dispose();
             _tray.Visible = false;
             _tray.Dispose();
+            _hangulIcon.Dispose();
+            _englishIcon.Dispose();
         }
         base.Dispose(disposing);
     }
