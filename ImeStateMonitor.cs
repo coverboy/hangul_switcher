@@ -1,5 +1,3 @@
-using System.Windows.Forms;
-
 namespace HangulSwitcher;
 
 internal sealed class ImeStateMonitor : IDisposable
@@ -8,12 +6,12 @@ internal sealed class ImeStateMonitor : IDisposable
 
     private const int POLL_INTERVAL_MS = 100;
 
-    private readonly Timer _timer;
+    private readonly System.Windows.Forms.Timer _timer;
     private bool? _lastState;
 
     public ImeStateMonitor()
     {
-        _timer = new Timer { Interval = POLL_INTERVAL_MS };
+        _timer = new System.Windows.Forms.Timer { Interval = POLL_INTERVAL_MS };
         _timer.Tick += (_, _) => Poll();
     }
 
