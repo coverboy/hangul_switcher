@@ -9,7 +9,10 @@ internal sealed class AboutForm : Form
     private const string IconFont = "Segoe MDL2 Assets";
     private const string TextFont = "Segoe UI";
     private const float  BaseFontSize = 11f;
-    private static readonly Color LinkColor = Color.FromArgb(50, 100, 200);
+    private static readonly Color LinkColor       = Color.FromArgb(50, 100, 200);
+    private static readonly Color GithubIconColor = Color.FromArgb(36, 41, 47);
+    private static readonly Color MailIconColor   = Color.FromArgb(220, 64, 64);
+    private static readonly Color ShieldIconColor = Color.FromArgb(34, 160, 85);
 
     public AboutForm()
     {
@@ -30,7 +33,6 @@ internal sealed class AboutForm : Form
 
     protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
     {
-        // 폼 안 어떤 컨트롤이 포커스를 갖고 있어도 ESC/Enter 가로채서 닫음.
         if (keyData == Keys.Escape || keyData == Keys.Enter)
         {
             Close();
@@ -108,29 +110,35 @@ internal sealed class AboutForm : Form
 
         var github = BuildCard(
             iconGlyph: "\uE943",
+            iconColor: GithubIconColor,
             label: "GITHUB",
             valueText: "github.com/coverboy/hangul_switcher",
             href: AppInfo.ProjectUrl,
-            extraIconGlyph: "\uE8A7");
+            extraIconGlyph: "\uE8A7",
+            extraIconColor: LinkColor);
         github.Margin = new Padding(0, 0, 0, 6);
         grid.Controls.Add(github, 0, 0);
         grid.SetColumnSpan(github, 2);
 
         var contact = BuildCard(
             iconGlyph: "\uE715",
+            iconColor: MailIconColor,
             label: "CONTACT",
             valueText: AppInfo.ContactEmail,
             href: $"mailto:{AppInfo.ContactEmail}",
-            extraIconGlyph: null);
+            extraIconGlyph: null,
+            extraIconColor: null);
         contact.Margin = new Padding(0, 6, 6, 0);
         grid.Controls.Add(contact, 0, 1);
 
         var license = BuildCard(
             iconGlyph: "\uE72E",
+            iconColor: ShieldIconColor,
             label: "LICENSE",
             valueText: "라이선스 완전 Free.",
             href: null,
-            extraIconGlyph: null);
+            extraIconGlyph: null,
+            extraIconColor: null);
         license.Margin = new Padding(6, 6, 0, 0);
         grid.Controls.Add(license, 1, 1);
 
@@ -148,10 +156,12 @@ internal sealed class AboutForm : Form
 
     private static Control BuildCard(
         string iconGlyph,
+        Color iconColor,
         string label,
         string valueText,
         string? href,
-        string? extraIconGlyph)
+        string? extraIconGlyph,
+        Color? extraIconColor)
     {
         var card = new RoundedPanel
         {
@@ -176,10 +186,11 @@ internal sealed class AboutForm : Form
         var icon = new Label
         {
             Text = iconGlyph,
-            Font = new Font(IconFont, 16f),
+            Font = new Font(IconFont, 18f),
+            ForeColor = iconColor,
             AutoSize = true,
-            Margin = new Padding(0, 2, 14, 0),
-            Anchor = AnchorStyles.Left
+            Margin = new Padding(0, 0, 14, 0),
+            Anchor = AnchorStyles.None
         };
         inner.Controls.Add(icon, 0, 0);
         inner.SetRowSpan(icon, 2);
@@ -208,9 +219,10 @@ internal sealed class AboutForm : Form
             var extra = new Label
             {
                 Text = extraIconGlyph,
-                Font = new Font(IconFont, 13f),
+                Font = new Font(IconFont, 14f),
+                ForeColor = extraIconColor ?? Color.Black,
                 AutoSize = true,
-                Anchor = AnchorStyles.Right
+                Anchor = AnchorStyles.None
             };
             inner.Controls.Add(extra, 2, 0);
             inner.SetRowSpan(extra, 2);

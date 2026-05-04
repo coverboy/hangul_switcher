@@ -7,7 +7,9 @@ namespace HangulSwitcher;
 internal sealed class AboutLogoPanel : Panel
 {
     private const int CORNER_RADIUS = 16;
-    private const float TEXT_EM_RATIO = 0.32f;
+    private const float TEXT_EM_RATIO  = 0.46f;
+    private const float CHAR_BOX_RATIO = 0.62f;
+    private const float OFFSET_RATIO   = 1f - CHAR_BOX_RATIO;
     private static readonly Color LogoBackground = Color.FromArgb(50, 100, 200);
 
     public AboutLogoPanel()
@@ -34,15 +36,37 @@ internal sealed class AboutLogoPanel : Panel
         g.FillPath(fill, bgPath);
 
         using var family = new FontFamily("Segoe UI");
-        using var textPath = new GraphicsPath();
+        using var brush = new SolidBrush(Color.White);
+        float emSize = side * TEXT_EM_RATIO;
+
+        // "한" 좌상단
+        DrawChar(g, brush, family, "한", emSize,
+            new RectangleF(rect.X, rect.Y, rect.Width * CHAR_BOX_RATIO, rect.Height * CHAR_BOX_RATIO),
+            StringAlignment.Near, StringAlignment.Near);
+
+        // "영" 우하단 — "한" 과 일부 겹쳐서 대각선 느낌
+        DrawChar(g, brush, family, "영", emSize,
+            new RectangleF(
+                rect.X + rect.Width  * OFFSET_RATIO,
+                rect.Y + rect.Height * OFFSET_RATIO,
+                rect.Width  * CHAR_BOX_RATIO,
+                rect.Height * CHAR_BOX_RATIO),
+            StringAlignment.Far, StringAlignment.Far);
+    }
+
+    private static void DrawChar(
+        Graphics g, Brush brush, FontFamily family,
+        string ch, float emSize, RectangleF box,
+        StringAlignment hAlign, StringAlignment vAlign)
+    {
         var format = new StringFormat
         {
-            Alignment = StringAlignment.Center,
-            LineAlignment = StringAlignment.Center
+            Alignment = hAlign,
+            LineAlignment = vAlign
         };
-        textPath.AddString("한\n영", family, (int)FontStyle.Bold, side * TEXT_EM_RATIO, rect, format);
-        using var brush = new SolidBrush(Color.White);
-        g.FillPath(brush, textPath);
+        using var path = new GraphicsPath();
+        path.AddString(ch, family, (int)FontStyle.Bold, emSize, box, format);
+        g.FillPath(brush, path);
     }
 
     private static GraphicsPath BuildRoundedPath(Rectangle rect, int radius)
