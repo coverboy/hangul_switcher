@@ -27,9 +27,11 @@ internal sealed class ImeStateMonitor : IDisposable
 
     private static bool ReadIsHangulMode()
     {
-        // foreground window 가 IME-aware 하지 않은 경우(WSL/Zed 등)에도
-        // 시스템 IME 상태가 일관되게 반영되는 explorer shell window 기준으로 읽음.
-        var hwnd = NativeMethods.GetShellWindow();
+        // 한/영(conversion mode) 상태는 IME 컨텍스트마다 독립적이라,
+        // 실제로 사용자가 타이핑하는 foreground window 기준으로 읽어야 한다.
+        // shell window(바탕화면) 기준으로 읽으면 사용자가 한/영을 토글해도
+        // 그 변화가 반영 안 되는 고정값이 나와 트레이 아이콘이 안 바뀐다.
+        var hwnd = NativeMethods.GetForegroundWindow();
         if (hwnd == IntPtr.Zero) return false;
 
         var threadId = NativeMethods.GetWindowThreadProcessId(hwnd, out _);
