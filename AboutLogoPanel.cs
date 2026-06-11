@@ -7,8 +7,8 @@ namespace HangulSwitcher;
 internal sealed class AboutLogoPanel : Panel
 {
     private const int CORNER_RADIUS = 16;
-    private const float TEXT_EM_RATIO  = 0.46f;
-    private const float CHAR_BOX_RATIO = 0.62f;
+    private const float TEXT_EM_RATIO  = 0.55f;
+    private const float CHAR_BOX_RATIO = 0.70f;
     private const float OFFSET_RATIO   = 1f - CHAR_BOX_RATIO;
     private static readonly Color LogoBackground = Color.FromArgb(50, 100, 200);
 

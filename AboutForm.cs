@@ -25,19 +25,18 @@ internal sealed class AboutForm : Form
     private const int CardWidth     = 296;
     private const int CardHeight    = 130;
     private const int GithubWidth   = 606;
-    private const int Row1Y         = 24;
-    private const int Row2Y         = 170;
+    private const int Row1Y         = 16;
+    private const int Row2Y         = 156;
     private const int LicenseX      = 620;
-    private const int QuoteX        = 770;
-    private const int QuoteY        = 380;
+    private const int QuoteY        = 305;
 
     // 카드 내부 좌표 (CardHeight=130 기준)
     private const int IconX     = 16;
-    private const int IconY     = 64;   // 본문 vertical center 정렬
-    private const int LabelX    = 52;
-    private const int LabelY    = 46;   // 라벨+본문 묶음을 카드 vertical center
-    private const int ValueX    = 52;
-    private const int ValueY    = 67;
+    private const int IconY     = 70;   // 본문 vertical center 정렬
+    private const int LabelX    = 64;
+    private const int LabelY    = 42;   // 라벨+본문 묶음을 카드 vertical center
+    private const int ValueX    = 64;
+    private const int ValueY    = 73;
     private const int ExtraIconRightPad = 16;
     private const float ExtraIconFontSize = 14f;
     private const int ExtraIconSize = 19;
@@ -128,8 +127,9 @@ internal sealed class AboutForm : Form
         {
             Text = "\"마음대로 가져다 쓰세요.\"",
             Font = new Font(TextFont, BaseFontSize, FontStyle.Italic),
-            Location = new Point(QuoteX, QuoteY),
-            AutoSize = true
+            Location = new Point(RightX, QuoteY),
+            Size = new Size(GithubWidth, 22),
+            TextAlign = ContentAlignment.MiddleRight
         });
     }
 
